@@ -30,14 +30,12 @@ app.get("/trailers/:code", codeValidator("param", "code"), async (c) => {
   try {
     trailer = await Promise.any([getAVWikiDBTrailer(code, signal), getJAVDatabaseTrailer(code, signal)]).finally(() => controller.abort());
 
-    const url = new URL(trailer as string);
-    if (url.protocol !== "https:") throw new Error("invalid_url");
+    const { protocol, href } = new URL(trailer as string);
+    if (!protocol.startsWith("http")) throw new Error();
 
-    trailer = url.href;
-  } catch (err) {
-    const isTransient = err instanceof Error && (err.message === "invalid_url" || err.name === "TimeoutError");
-    if (!isTransient) c.executionCtx.waitUntil(c.env.KV.put(cacheKey, "", { expirationTtl: 60 * 60 }));
-
+    trailer = href;
+  } catch {
+    c.executionCtx.waitUntil(c.env.KV.put(cacheKey, "", { expirationTtl: 60 * 5 }));
     return c.notFound();
   }
 
