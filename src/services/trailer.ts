@@ -27,22 +27,12 @@ export const getJAVDatabaseTrailer = async (code: string, signal?: AbortSignal) 
   const res = await fetchWithUA(`https://www.javdatabase.com/movies/${encodeURIComponent(code)}/`, signal);
   if (!res.ok) throw new Error();
 
-  let isInTag = false;
   let trailer = "";
 
   await new HTMLRewriter()
-    .on("video#jav-player", {
+    .on("video#jav-player source", {
       element: (el) => {
-        isInTag = true;
-
-        el.onEndTag(() => {
-          isInTag = false;
-        });
-      },
-    })
-    .on("source", {
-      element: (el) => {
-        if (isInTag && !trailer) trailer = el.getAttribute("src") || "";
+        if (!trailer) trailer = el.getAttribute("src") || "";
       },
     })
     .transform(res)
