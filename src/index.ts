@@ -4,6 +4,9 @@ import { cache } from "hono/cache";
 import { getAVWikiDBTrailer, getJAVDatabaseTrailer } from "./services/trailer";
 import { codeValidator } from "./validators/code";
 
+const TTL_HIT = 86400;
+const TTL_MISS = 300;
+
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.get("/", (c) => c.text("Hello, World!"));
@@ -14,23 +17,23 @@ app.get("/trailers/:code", codeValidator("param", "code"), async (c) => {
   const { code } = c.req.valid("param");
 
   const cacheKey = `trailer:${code}`;
-  let trailer = await c.env.KV.get(cacheKey);
+  let trailer = await c.env.KV.get(cacheKey, { cacheTtl: TTL_MISS });
 
   if (trailer === "") {
-    c.header("Cache-Control", "public, max-age=300");
+    c.header("Cache-Control", `public, max-age=${TTL_MISS}`);
     return c.json({ error: "Not Found" }, 404);
   }
 
   if (trailer) {
-    c.header("Cache-Control", "public, max-age=86400");
+    c.header("Cache-Control", `public, max-age=${TTL_HIT}`);
     return c.json({ trailer });
   }
 
-  trailer = await c.env.DB.prepare("SELECT trailer FROM trailers WHERE code = ? LIMIT 1").bind(code).first("trailer");
+  trailer = await c.env.DB.prepare("SELECT trailer FROM trailers WHERE code = ?").bind(code).first("trailer");
 
   if (trailer) {
-    c.executionCtx.waitUntil(c.env.KV.put(cacheKey, trailer, { expirationTtl: 86400 }));
-    c.header("Cache-Control", "public, max-age=86400");
+    c.executionCtx.waitUntil(c.env.KV.put(cacheKey, trailer, { expirationTtl: TTL_HIT }));
+    c.header("Cache-Control", `public, max-age=${TTL_HIT}`);
     return c.json({ trailer });
   }
 
@@ -45,19 +48,19 @@ app.get("/trailers/:code", codeValidator("param", "code"), async (c) => {
 
     trailer = href;
   } catch {
-    c.executionCtx.waitUntil(c.env.KV.put(cacheKey, "", { expirationTtl: 300 }));
-    c.header("Cache-Control", "public, max-age=300");
+    c.executionCtx.waitUntil(c.env.KV.put(cacheKey, "", { expirationTtl: TTL_MISS }));
+    c.header("Cache-Control", `public, max-age=${TTL_MISS}`);
     return c.json({ error: "Not Found" }, 404);
   }
 
   c.executionCtx.waitUntil(
     Promise.allSettled([
       c.env.DB.prepare("INSERT OR IGNORE INTO trailers (code, trailer) VALUES (?, ?)").bind(code, trailer).run(),
-      c.env.KV.put(cacheKey, trailer, { expirationTtl: 86400 }),
+      c.env.KV.put(cacheKey, trailer, { expirationTtl: TTL_HIT }),
     ]),
   );
 
-  c.header("Cache-Control", "public, max-age=86400");
+  c.header("Cache-Control", `public, max-age=${TTL_HIT}`);
   return c.json({ trailer });
 });
 
