@@ -2,5 +2,8 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": ["**/*.d.ts"],
   "printWidth": 150,
-  "sortImports": true
+  "sortImports": true,
+  "sortPackageJson": {
+    "sortScripts": true
+  }
 }
