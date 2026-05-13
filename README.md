@@ -1,4 +1,5 @@
 ```txt
+pnpx taze -w
 pnpm i
 pnpm dev
 ```
