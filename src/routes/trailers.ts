@@ -5,8 +5,6 @@ import { getAVWikiDBTrailer, getJAVDatabaseTrailer } from "../services/trailer";
 import { codeValidator } from "../validators/code";
 
 const ROUTE = "trailers";
-const TTL_HIT = 86400;
-const TTL_MISS = 300;
 
 const trailers = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -14,6 +12,7 @@ trailers.use("*", cache({ cacheName: ROUTE }));
 
 trailers.get("/:code", codeValidator("param", "code"), async (c) => {
   const { code } = c.req.valid("param");
+  const { TTL_HIT, TTL_MISS } = c.env;
 
   const cacheKey = `${ROUTE}:${code}`;
   let trailer = await c.env.KV.get(cacheKey, { cacheTtl: TTL_HIT });
