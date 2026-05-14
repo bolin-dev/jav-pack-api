@@ -4,17 +4,15 @@ import { cache } from "hono/cache";
 import { getAVWikiDBTrailer, getJAVDatabaseTrailer } from "../services/trailer";
 import { codeValidator } from "../validators/code";
 
-const ROUTE = "trailers";
-
 const trailers = new Hono<{ Bindings: CloudflareBindings }>();
 
-trailers.use("*", cache({ cacheName: ROUTE }));
+trailers.use(cache({ cacheName: "trailers" }));
 
 trailers.get("/:code", codeValidator("param", "code"), async (c) => {
   const { code } = c.req.valid("param");
   const { TTL_HIT, TTL_MISS } = c.env;
 
-  const cacheKey = `${ROUTE}:${code}`;
+  const cacheKey = `trailers:${code}`;
   let trailer = await c.env.KV.get(cacheKey, { cacheTtl: TTL_HIT });
 
   if (trailer === "") {
@@ -36,7 +34,7 @@ trailers.get("/:code", codeValidator("param", "code"), async (c) => {
   }
 
   const controller = new AbortController();
-  const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(5_000)]);
+  const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]);
 
   try {
     const result = await Promise.any([getAVWikiDBTrailer(code, signal), getJAVDatabaseTrailer(code, signal)]).finally(() => controller.abort());
