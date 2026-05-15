@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "oxfmt": "^0.49.0",
-    "oxlint": "^1.64.0",
+    "oxlint": "^1.65.0",
     "wrangler": "^4.92.0"
   },
   "packageManager": "pnpm@11.1.2"
