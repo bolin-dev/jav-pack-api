@@ -1,6 +1,5 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-
   "name": "jav-pack-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
@@ -8,6 +7,9 @@
   "route": {
     "pattern": "javp.cc.cd",
     "custom_domain": true,
+  },
+  "placement": {
+    "mode": "smart",
   },
   "observability": {
     "logs": {
@@ -19,7 +21,6 @@
       "head_sampling_rate": 0.05,
     },
   },
-
   "vars": {
     "TTL_HIT": 86400,
     "TTL_MISS": 300,
