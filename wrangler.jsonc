@@ -4,7 +4,7 @@
   "name": "jav-pack-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
-  "workers_dev": false,
+  "workers_dev": true,
   "route": {
     "pattern": "javp.cc.cd",
     "custom_domain": true,
