@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "check": "oxfmt --check && oxlint",
     "deploy": "wrangler deploy --minify",
     "dev": "wrangler dev",
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "fix": "oxfmt && oxlint --fix",
+    "migrate": "wrangler d1 migrations apply jav-pack-api-db",
+    "migrate:local": "pnpm migrate -- --local",
+    "migrate:remote": "pnpm migrate -- --remote",
+    "predeploy": "pnpm check"
   },
   "dependencies": {
     "hono": "^4.12.18"
