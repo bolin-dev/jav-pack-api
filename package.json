@@ -14,12 +14,12 @@
     "predeploy": "pnpm check"
   },
   "dependencies": {
-    "hono": "^4.12.19"
+    "hono": "^4.12.21"
   },
   "devDependencies": {
-    "oxfmt": "^0.50.0",
-    "oxlint": "^1.65.0",
-    "wrangler": "^4.92.0"
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0",
+    "wrangler": "^4.93.0"
   },
   "packageManager": "pnpm@11.1.3"
 }
