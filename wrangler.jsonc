@@ -14,7 +14,7 @@
   "observability": {
     "logs": {
       "enabled": true,
-      "invocation_logs": false,
+      "head_sampling_rate": 1,
     },
     "traces": {
       "enabled": true,
