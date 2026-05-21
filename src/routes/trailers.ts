@@ -17,14 +17,14 @@ trailers.get("/:code", codeValidator("param", "code"), async (c) => {
   const key = `${route}:${code}`;
   let trailer = await c.env.KV.get(key, { cacheTtl: TTL_MISS });
 
-  if (trailer === "") return respondStatus(c, 404, TTL_MISS);
-  if (trailer) return respondBody(c, { trailer }, TTL_HIT);
+  if (trailer === "") return respondStatus(c, 404, TTL_MISS, true);
+  if (trailer) return respondBody(c, { trailer }, TTL_HIT, "kv_hit");
 
   trailer = await c.env.DB.prepare("SELECT trailer FROM trailers WHERE code = ?").bind(code).first("trailer");
 
   if (trailer) {
     c.executionCtx.waitUntil(c.env.KV.put(key, trailer, { expirationTtl: TTL_HIT }));
-    return respondBody(c, { trailer }, TTL_HIT);
+    return respondBody(c, { trailer }, TTL_HIT, "db_hit");
   }
 
   const controller = new AbortController();
@@ -43,7 +43,7 @@ trailers.get("/:code", codeValidator("param", "code"), async (c) => {
     trailer = href;
   } catch {
     c.executionCtx.waitUntil(c.env.KV.put(key, "", { expirationTtl: TTL_MISS }));
-    return respondStatus(c, 404, TTL_MISS);
+    return respondStatus(c, 404, TTL_MISS, true);
   }
 
   c.executionCtx.waitUntil(
@@ -53,7 +53,7 @@ trailers.get("/:code", codeValidator("param", "code"), async (c) => {
     ]),
   );
 
-  return respondBody(c, { trailer }, TTL_HIT);
+  return respondBody(c, { trailer }, TTL_HIT, "fetch_hit");
 });
 
 export default trailers;
