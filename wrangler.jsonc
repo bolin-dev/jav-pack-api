@@ -3,11 +3,17 @@
   "name": "jav-pack-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
-  "workers_dev": true,
-  "route": {
-    "pattern": "javp.cc.cd",
-    "custom_domain": true,
-  },
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "javp.cc.cd",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "jav.qzz.io",
+      "custom_domain": true,
+    },
+  ],
   "placement": {
     "mode": "smart",
   },
